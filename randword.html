@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random PanLex Expression</title>
+    <style>
+        body {background:#d7d0b7;}
+        h1 {color:black;text-align:center;}
+        p {text-align:center;}
+		p.intro {text-align:left;}
+        div {text-align:left;}
+        table {border-collapse: collapse;width:50%;margin-left:auto; margin-right:auto;}
+        tr.values {background:#ccbbaa;border-bottom:1px solid #888;}
+        td#results {width:100%;}
+        td {padding-right: 15px; padding-left: 10px;}
+        td.btn {text-align:center;padding-top:10px;padding-bottom:10px;width:50%;}
+    </style>
+    <script src="jquery-3.1.0.js"></script>
+    <script>
+        function fetch() {
+            $.post("http://api.panlex.org/lv",
+				JSON.stringify({sort: "random", limit: 1}),
+				function(data, status){
+					console.log(JSON.stringify(data.result[0]));
+					
+					console.log(data.result[0].lv);
+					
+					$.post("http://api.panlex.org/ex",
+						JSON.stringify({"lv":data.result[0].lv, "limit":1, "sort":"random"}),
+							function(data2, status) {
+								console.log(JSON.stringify(data2));
+								document.getElementById("results").innerHTML = data2.result[0].tt;
+								var variety = data.result[0].tt + " (" + data.result[0].uid + ")";
+								document.getElementById("lang").innerHTML = variety;
+							},
+						"json"
+					);
+				},
+            "json");
+        }
+        
+        $(document).ready(function () {
+            $("#fetch").click(fetch);
+        });
+    </script>
+</head>
+<body>
+<h1>Random PanLex Expression</h1>
+<table><tr><td>
+    <p class="intro">
+        This is my unofficial PanLex random word selector. 
+        It chooses an expression at random from the PanLex database in a randomly chosen language.
+    </p>
+	<p class="intro">
+        Note that some languages do not have any data added yet.
+        If you want to see PanLex add data to your favorite language,
+        and you know of some dictionary or other source, let them know so they can include it.
+    </p>
+</td></tr></table>
+<br>
+
+<div>
+    <table>
+        <tr class="values"><td><nobr><b>Random expression</b></nobr></td><td id="results">&nbsp;</td></tr>
+        <tr class="values"><td><nobr><b>Language variety</b></nobr></td><td id="lang">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" class="btn">
+                <button id="fetch">Fetch</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<p>Find out more about the project on the <a href="http://panlex.org" target="_blank">PanLex website</a>.</p>
+</body>
+</html>
