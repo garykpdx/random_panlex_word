@@ -23,8 +23,6 @@
 				function(data, status){
 					console.log(JSON.stringify(data.result[0]));
 					
-					console.log(data.result[0].lv);
-					
 					$.post("http://api.panlex.org/ex",
 						JSON.stringify({"lv":data.result[0].lv, "limit":1, "sort":"random"}),
 							function(data2, status) {
@@ -32,6 +30,22 @@
 								document.getElementById("results").innerHTML = data2.result[0].tt;
 								var variety = data.result[0].tt + " (" + data.result[0].uid + ")";
 								document.getElementById("lang").innerHTML = variety;
+								
+								
+								$.post("http://api.panlex.org/ex",
+            						JSON.stringify({"tt": data.result[0].tt, "include": "trq", 
+            						"lv":187, "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 }),
+            						function(data3, status) {
+            						    console.log(JSON.stringify(data3));
+            						    if (data3.resultNum > 0) {
+                                            var translation = data3.result[0].trtt;
+                                            document.getElementById("trans").innerHTML = translation;
+								        }
+								        else {
+								            document.getElementById("trans").innerHTML = "<i>no translation</i>";
+								        }
+            						},
+            						"json");
 							},
 						"json"
 					);
@@ -63,6 +77,7 @@
     <table>
         <tr class="values"><td><nobr><b>Random expression</b></nobr></td><td id="results">&nbsp;</td></tr>
         <tr class="values"><td><nobr><b>Language variety</b></nobr></td><td id="lang">&nbsp;</td></tr>
+        <tr class="values"><td><nobr><b></b></nobr></td><td id="trans">&nbsp;</td></tr>
         <tr>
             <td colspan="2" class="btn">
                 <button id="fetch">Fetch</button>
