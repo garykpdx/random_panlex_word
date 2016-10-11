@@ -19,7 +19,7 @@
     <script>
         function fetch() {
             $.post("http://api.panlex.org/lv",
-				JSON.stringify({sort: "random", limit: 1}),
+				JSON.stringify({sort: "random", "lv":666, limit: 1}),
 				function(data, status){
 					console.log(JSON.stringify(data.result[0]));
 					
@@ -31,14 +31,16 @@
 								var variety = data.result[0].tt + " (" + data.result[0].uid + ")";
 								document.getElementById("lang").innerHTML = variety;
 								
-								
+//{ "trtt": "sana", "include": "trq", "lv":187, "trlv":204, "sort":"trq desc", "limit":1 }
+								var params = {"trtt": data.result[0].tt, "include": "trq", "lv":187, 
+								                "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 };
+								console.log('PARAMS: ' + JSON.stringify(params));
 								$.post("http://api.panlex.org/ex",
-            						JSON.stringify({"tt": data.result[0].tt, "include": "trq", 
-            						"lv":187, "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 }),
+            						JSON.stringify( params),
             						function(data3, status) {
-            						    console.log(JSON.stringify(data3));
+            						    console.log('TRANS: ' + JSON.stringify(data3));
             						    if (data3.resultNum > 0) {
-                                            var translation = data3.result[0].trtt;
+                                            var translation = data3.result[0].tt;
                                             document.getElementById("trans").innerHTML = translation;
 								        }
 								        else {
