@@ -31,7 +31,6 @@
 								var variety = data.result[0].tt + " (" + data.result[0].uid + ")";
 								document.getElementById("lang").innerHTML = variety;
 								
-//{ "trtt": "sana", "include": "trq", "lv":187, "trlv":204, "sort":"trq desc", "limit":1 }
 								var params = {"trtt": data.result[0].tt, "include": "trq", "lv":187, 
 								                "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 };
 								console.log('PARAMS: ' + JSON.stringify(params));
