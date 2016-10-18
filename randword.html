@@ -19,7 +19,7 @@
     <script>
         function fetch() {
             $.post("http://api.panlex.org/lv",
-				JSON.stringify({sort: "random", "lv":666, limit: 1}),
+				JSON.stringify({sort: "random", limit: 1}),
 				function(data, status){
 					console.log(JSON.stringify(data.result[0]));
 					
@@ -44,7 +44,7 @@
                                             document.getElementById("trans").innerHTML = translation;
 								        }
 								        else {
-								            document.getElementById("trans").innerHTML = "<i>no translation</i>";
+								            document.getElementById("trans").innerHTML = "&nbsp;";
 								        }
             						},
             						"json");
