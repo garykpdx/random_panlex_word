@@ -54,7 +54,7 @@
         
         
         function set_translation(word, lang_variety) {
-            params = {"trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], "limit":1, "sort":"trq desc"};
+            params = {"trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], "limit":5, "sort":"trq desc"};
             console.log("GET TRANS: " + JSON.stringify(params));
             
             $.post("http://api.panlex.org/ex",
@@ -63,17 +63,36 @@
                 function(response, status) {
                     console.log("TRANSLATION RESULTS: " + JSON.stringify(response.result));
                     
-                    if (response.resultNum > 0 && response.result[0].trq > 10) {
-						document.getElementById("english_word").innerHTML = response.result[0].tt;
+                    if (response.resultNum > 0) {
+                        if (response.result[0].trq > 10) {
+						    document.getElementById("english_word").innerHTML = response.result[0].tt;
+						} else {
+						    console.log("low quality: " + JSON.stringify(response.result[0].trq));
+						    // try with distance 2 translation
+						    params = {"trdistance":2, "trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], 
+						            "limit":5, "sort":"trq desc"};
+						
+						    $.post("http://api.panlex.org/ex", JSON.stringify(params),
+                                function(response, status) {
+                                    console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
+                                    if (response.result[0].trq > 10) {
+                                        document.getElementById("english_word").innerHTML = response.result[0].tt;
+                                    }
+                                },
+                                "json");
+						}
 					} else {
 						// try with distance 2 translation
 						params = {"trdistance":2, "trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], 
-						            "limit":1, "sort":"trq desc"};
+						            "limit":5, "sort":"trq desc"};
+						
 						$.post("http://api.panlex.org/ex", JSON.stringify(params),
 						    function(response, status) {
 						        console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
-						        if (response.result[0].trq > 10) {
-						            document.getElementById("english_word").innerHTML = response.result[0].tt;
+						        if (response.resultNum > 0) {
+                                    if (response.result[0].trq > 10) {
+                                        document.getElementById("english_word").innerHTML = response.result[0].tt;
+                                    }
 						        }
 						    },
 						    "json");
