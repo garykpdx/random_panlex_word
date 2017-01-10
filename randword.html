@@ -3,109 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <title>Random PanLex Expression</title>
-    <script src="jquery-3.1.0.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
     <script>
-        function fetch() {
-            $.post("http://api.panlex.org/lv",
-				JSON.stringify({sort: "random", limit: 1}),
-				function(data, status) {
-					console.log(JSON.stringify(data.result[0]));
-					
-					$.post("http://api.panlex.org/ex",
-						JSON.stringify({"lv":data.result[0].lv, "limit":1, "sort":"random"}),
-						
-							function(data2, status) {
-								console.log(JSON.stringify(data2));
-								document.getElementById("english_word").innerHTML = '';
-								document.getElementById("results").innerHTML = data2.result[0].tt;
-								var variety = data.result[0].tt + " (" + data.result[0].uid + ")";
-								document.getElementById("lang").innerHTML = variety;
-								
-								var params = {"trtt": data.result[0].tt, "include": "trq", "lv":187, 
-								                "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 };
-								console.log("PARAMS: " + JSON.stringify(params));
-								
-								$.post("http://api.panlex.org/ex",
-            						JSON.stringify( params),
-            						
-            						function(data3, status) {
-            						    console.log('NAME TRANS: ' + JSON.stringify(data3));
-            						    if (data3.resultNum > 0) {
-                                            var eng_lang_name = data3.result[0].tt;
-                                            document.getElementById("lang_name_eng").innerHTML = eng_lang_name;
-								        }
-								        else {
-								            document.getElementById("lang_name_eng").innerHTML = "&nbsp;";
-								        }
-            						},
-            						"json");
-            						
-            					set_translation(data2.result[0].tt, data.result[0].lv);
-							},
-						"json"
-					);
-				},
-            "json");
+        var API_URL = "http://api.panlex.org";
+        var LV_ENG = 187;
+        var english_word, results, lang, lang_name_eng;
+
+        function query(path, params, cb) {
+            $.post(API_URL + path, JSON.stringify(params), cb, "json");
         }
-        
+
+        function set_translation(word, lang_variety) {
+            var params = { trtt: word, trlv: lang_variety, lv: LV_ENG,
+                include: "trq", limit: 5, sort: "trq desc"};
+            console.log("GET TRANS: " + JSON.stringify(params));
+
+            query("/ex", params,
+            function(response, status) {
+                console.log("TRANSLATION RESULTS: " + JSON.stringify(response.result));
+
+                if (response.resultNum > 0) {
+                    var tr = response.result[0];
+
+                    if (tr.trq > 10) {
+                        english_word.html(tr.tt);
+                    } else {
+                        console.log("low quality: " + JSON.stringify(tr.trq));
+                        // try with distance 2 translation
+                        params.trdistance = 2;
+
+                        query("/ex", params,
+                        function(response, status) {
+                            console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
+
+                            if (response.resultNum > 0) {
+                                tr = response.result[0];
+                                if (tr.trq > 10) {
+                                    english_word.html(tr.tt);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    // try with distance 2 translation
+                    params = { trdistance: 2, trtt: word, trlv: lang_variety, lv: LV_ENG, include: "trq",
+                                limit: 5, sort: "trq desc"};
+
+                    query("/ex", params,
+                    function(response, status) {
+                        console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
+                        if (response.resultNum > 0) {
+                            if (response.result[0].trq > 10) {
+                                document.getElementById("english_word").innerHTML = response.result[0].tt;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function fetch() {
+            query("/lv", {sort: "random", limit: 1},
+            function(data, status) {
+                var lv = data.result[0];
+                console.log(JSON.stringify(lv));
+
+                query("/ex", { lv: lv.lv, limit: 1, sort: "random", include:"uid" },
+                function(data2, status) {
+                    var ex = data2.result[0];
+                    console.log(JSON.stringify(data2));
+
+                    english_word.html("");
+                    results.html(ex.tt);
+                    lang.html(lv.tt + " (" + lv.uid + ")");
+
+                    var params = { "trtt": lv.tt, "include": "trq", "lv": LV_ENG,
+                        "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 };
+                    console.log("PARAMS: " + JSON.stringify(params));
+
+                    query("/ex", params,
+                    function(data3, status) {
+                        console.log("NAME TRANS: " + JSON.stringify(data3));
+                        var eng_name = data3.resultNum > 0 ? data3.result[0].tt : "&nbsp;";
+                        lang_name_eng.html(eng_name);
+                    });
+
+                    set_translation(ex.tt, lv.lv);
+                });
+            });
+        }
+
         $(document).ready(function () {
+            english_word = $("#english_word");
+            results = $("#results");
+            lang = $("#lang");
+            lang_name_eng = $("#lang_name_eng");
+
             $("#fetch").click(fetch);
         });
-        
-        
-        function set_translation(word, lang_variety) {
-            params = {"trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], "limit":5, "sort":"trq desc"};
-            console.log("GET TRANS: " + JSON.stringify(params));
-            
-            $.post("http://api.panlex.org/ex",
-                JSON.stringify(params),
-                
-                function(response, status) {
-                    console.log("TRANSLATION RESULTS: " + JSON.stringify(response.result));
-                    
-                    if (response.resultNum > 0) {
-                        if (response.result[0].trq > 10) {
-						    document.getElementById("english_word").innerHTML = response.result[0].tt;
-						} else {
-						    console.log("low quality: " + JSON.stringify(response.result[0].trq));
-						    // try with distance 2 translation
-						    params = {"trdistance":2, "trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], 
-						            "limit":5, "sort":"trq desc"};
-						
-						    $.post("http://api.panlex.org/ex", JSON.stringify(params),
-                                function(response, status) {
-                                    console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
-                                    if (response.result[0].trq > 10) {
-                                        document.getElementById("english_word").innerHTML = response.result[0].tt;
-                                    }
-                                },
-                                "json");
-						}
-					} else {
-						// try with distance 2 translation
-						params = {"trdistance":2, "trtt":word, "trlv":lang_variety, "lv":187, "include":["trq"], 
-						            "limit":5, "sort":"trq desc"};
-						
-						$.post("http://api.panlex.org/ex", JSON.stringify(params),
-						    function(response, status) {
-						        console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
-						        if (response.resultNum > 0) {
-                                    if (response.result[0].trq > 10) {
-                                        document.getElementById("english_word").innerHTML = response.result[0].tt;
-                                    }
-						        }
-						    },
-						    "json");
-					}
-                },
-                "json");
-        }
     </script>
     <style>
         body {background:#d7d0b7;}
         h1 {color:black;text-align:center;}
         p {text-align:center;}
-		p.intro {text-align:left;}
+        p.intro {text-align:left;}
         div {text-align:left;}
         table {border-collapse: collapse;width:9in;margin-left:auto; margin-right:auto;}
         tr.values {background:#ccbbaa;border-bottom:1px solid #888;}
@@ -119,10 +120,10 @@
 <h1>Random PanLex Expression</h1>
 <table><tr><td>
     <p class="intro">
-        This is my unofficial PanLex random word selector. 
+        This is my unofficial PanLex random word selector.
         It chooses an expression at random from the PanLex database in a randomly chosen language.
     </p>
-	<p class="intro">
+    <p class="intro">
         Note that some languages do not have any data added yet.
         If you want to see PanLex add data to your favorite language,
         and you know of some dictionary or other source, let them know so they can include it.
