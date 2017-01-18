@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Random PanLex Expression</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+    <script src="jquery-3.1.1.js"></script>
     <script>
         var API_URL = "http://api.panlex.org";
         var LV_ENG = 187;
@@ -108,12 +108,13 @@
         p {text-align:center;}
         p.intro {text-align:left;}
         div {text-align:left;}
-        table {border-collapse: collapse;width:9in;margin-left:auto; margin-right:auto;}
+        table {border-collapse: collapse;width:7in;margin-left:auto; margin-right:auto;}
         tr.values {background:#ccbbaa;border-bottom:1px solid #888;}
-        td#results {width:0%;}
+        tr.eng {background:#e7e0c7;}
         td {padding-right: 15px; padding-left: 10px;}
+        td#results {width:100%;}
+        td.label {font-weight:bold;}
         td.btn {text-align:center;padding-top:10px;padding-bottom:10px;width:50%;}
-        td.eng_lang {color:blue;}
     </style>
 </head>
 <body>
@@ -134,18 +135,26 @@
 <div>
     <table>
         <tr class="values">
-            <td><nobr><b>Random expression</b></nobr></td>
+            <td class="label"><nobr>Random expression</nobr></td>
             <td id="results">&nbsp;</td>
-            <td class="eng_lang" id="english_word"></td>
         </tr>
+        
+        <tr class="eng" width="100%">
+            <td class="label"><nobr>English translation</nobr></td>
+            <td id="english_word">&nbsp;</td>
+        </tr>
+        
         <tr class="values">
-            <td><nobr><b>Language variety</b></nobr></td>
+            <td class="label"><nobr>Language variety name</nobr></td>
             <td id="lang">&nbsp;</td>
-            <td class="eng_lang" id="lang_name_eng"></td>
+            
         </tr>
-        <!-- <tr class="values"><td><nobr><b></b></nobr></td><td id="trans">&nbsp;</td></tr> -->
+        <tr class="eng">
+            <td class="label"><nobr>English name</nobr></td>
+            <td id="lang_name_eng">&nbsp;</td>
+        </tr>
         <tr>
-            <td colspan="3" class="btn">
+            <td colspan="2" class="btn">
                 <button id="fetch">Fetch</button>
             </td>
         </tr>
