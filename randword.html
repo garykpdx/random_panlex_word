@@ -7,7 +7,8 @@
     <script>
         var API_URL = "http://api.panlex.org";
         var LV_ENG = 187;
-        var english_word, results, lang, lang_name_eng;
+        var LV_ISO_PRINT_NAME = 1626;
+        var english_word, results, lang_variety, lang_name_eng, src_lv;
 
         function query(path, params, cb) {
             $.post(API_URL + path, JSON.stringify(params), cb, "json");
@@ -16,7 +17,7 @@
         function set_translation(word, lang_variety) {
             var params = { trtt: word, trlv: lang_variety, lv: LV_ENG,
                 include: "trq", limit: 1, sort: "trq desc"};
-            console.log("GET TRANS: " + JSON.stringify(params));
+            console.log("SET TRANSLATION: " + JSON.stringify(params));
 
             query("/ex", params,
             function(response, status) {
@@ -56,36 +57,56 @@
         
         function fetch() {
             query("/lv", {sort: "random", limit: 1},
-            function(data, status) {
-                var lv = data.result[0];
+            function(lv_results, status) {
+                var lv = lv_results.result[0];
                 console.log(JSON.stringify(lv));
 
                 query("/ex", { lv: lv.lv, limit: 1, sort: "random", include:"uid" },
-                function(data2, status) {
-                    var ex = data2.result[0];
-                    console.log(JSON.stringify(data2));
+                function(lexeme_results, status) {
+                    var ex = lexeme_results.result[0];
+                    console.log(JSON.stringify(lexeme_results));
 
                     english_word.html("");
                     results.html(ex.tt);
                     lang.html(lv.tt + " (" + lv.uid + ")");
 
-                    var params = { "trtt": lv.tt, "include": "trq", "lv": LV_ENG,
-                        "trlv":data.result[0].lv, "sort":"trq desc", "limit":1 };
+                    var params = { "trtt": lv.tt, "include": ["trq", "uid"], "lv": LV_ENG,
+                                    "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
                     console.log("PARAMS: " + JSON.stringify(params));
 
-                    query("/ex", params,
-                    function(data3, status) {
-                        console.log("NAME TRANS: " + JSON.stringify(data3));
-                        var eng_name = data3.resultNum > 0 ? data3.result[0].tt : "&nbsp;";
-                        lang_name_eng.html(eng_name);
-                    });
-
+                    query("/ex", params, get_eng_lang_name);
                     set_translation(ex.tt, lv.lv);
                 });
             });
         }
 
-        
+
+
+        function get_eng_lang_name(eng_name_results, status) {
+            console.log("NAME TRANS: " + JSON.stringify(eng_name_results));
+            var eng_name;
+
+            if (eng_name_results.resultNum > 0) {
+                eng_name = eng_name_results.result[0].tt;
+                console.log("ENG LV NAME FOUND: " + JSON.stringify(eng_name_results));
+            }
+            else {
+                // TODO: get source LV name to translate into art-290 (art-001 ?)
+                console.log("ENG NAME NOT FOUND: " + JSON.stringify(eng_name_results));
+                var params = { "trlv": lang_variety, "include": "trq", "lv": LV_ISO_PRINT_NAME,
+                               "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
+                query("/lv", params, get_iso_print_name);
+            }
+
+            lang_name_eng.html(eng_name);
+        }
+
+
+        function get_iso_print_name(iso_print_name, status) {
+
+        }
+
+
         $(document).ready(function () {
             english_word = $("#english_word");
             results = $("#results");
