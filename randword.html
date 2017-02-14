@@ -7,8 +7,9 @@
     <script>
         var API_URL = "http://api.panlex.org";
         var LV_ENG = 187;
+        var LV_ISO_639_3 = 1622;
         var LV_ISO_PRINT_NAME = 1626;
-        var english_word, results, lang_variety, lang_name_eng, src_lv;
+        var english_word, results, lang_variety, lang_code, lang_name_eng;
 
         function query(path, params, cb) {
             $.post(API_URL + path, JSON.stringify(params), cb, "json");
@@ -56,9 +57,11 @@
         
         
         function fetch() {
+            lang_name_eng.html("");
             query("/lv", {sort: "random", limit: 1},
             function(lv_results, status) {
                 var lv = lv_results.result[0];
+                lang_code = lv_results.result[0].lc;
                 console.log(JSON.stringify(lv));
 
                 query("/ex", { lv: lv.lv, limit: 1, sort: "random", include:"uid" },
@@ -93,9 +96,10 @@
             else {
                 // TODO: get source LV name to translate into art-290 (art-001 ?)
                 console.log("ENG NAME NOT FOUND: " + JSON.stringify(eng_name_results));
-                var params = { "trlv": lang_variety, "include": "trq", "lv": LV_ISO_PRINT_NAME,
-                               "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
-                query("/lv", params, get_iso_print_name);
+                var params = { "trtt":lang_code, "trlv": LV_ISO_639_3, "include": "trq", 
+                                "lv": LV_ISO_PRINT_NAME, "sort":"trq desc", "limit":1 };
+                console.log("GET ISO NAME: " + JSON.stringify(params));
+                query("/ex", params, get_iso_print_name);
             }
 
             lang_name_eng.html(eng_name);
@@ -103,7 +107,8 @@
 
 
         function get_iso_print_name(iso_print_name, status) {
-
+            console.log("ISO NAME: " + iso_print_name.result[0].tt);
+            lang_name_eng.html("variety of " + iso_print_name.result[0].tt);
         }
 
 
