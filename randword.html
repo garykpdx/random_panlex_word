@@ -22,19 +22,26 @@
         var LV_ENG = 187;
         var LV_ISO_639_3 = 1622;
         var LV_ISO_PRINT_NAME = 1626;
+        var langvar_name = '';
         var english_word, results, lang_variety, lang_code, lang_name_eng;
 
-        function query(path, params, cb) {
-            $.post(API_URL + path, JSON.stringify(params), cb, "json");
+        var request_num = 0;
+
+        function query(path, params, this_request_num, cb) {
+            $.post(API_URL + path, JSON.stringify(params),
+            function (results, status) {
+              if (request_num === this_request_num) cb(results, status, this_request_num);
+            }, "json");
         }
 
-        function set_translation(word, lang_variety) {
+
+        function set_translation(word, lang_variety, this_request_num) {
             var params = { trtt: word, trlv: lang_variety, lv: LV_ENG,
                 include: "trq", limit: 1, sort: "trq desc"};
             console.log("SET TRANSLATION: " + JSON.stringify(params));
 
-            query("/ex", params,
-            function(response, status) {
+            query("/ex", params, this_request_num,
+            function(response, status, this_request_num) {
                 console.log("D1 TRANSLATION RESULTS: " + JSON.stringify(response.result));
 
                 if (response.resultNum > 0) {
@@ -42,86 +49,116 @@
 
                     if (tr.trq > 10) {
                         english_word.html(tr.tt);
+                        english_word.addClass("success");
                     } else {
                         console.log("D1 low quality: " + JSON.stringify(tr.trq) + ", " + JSON.stringify(tr.tt));
-                        getDistance2Translation(word, lang_variety);
+                        setDistance2Translation(word, lang_variety, this_request_num);
                     }
                 } else {
                     console.log("D1 no results: " + JSON.stringify(response.resultCount));
-                    getDistance2Translation(word, lang_variety);
+                    setDistance2Translation(word, lang_variety, this_request_num);
                 }
             });
         }
 
 
-        function getDistance2Translation(word, lang_variety) {
+        function setDistance2Translation(word, lang_variety, this_request_num) {
             params = {trdistance: 2, trtt:word, trlv:lang_variety, lv:LV_ENG, include:"trq", limit:1, sort:"trq desc"};
-            query("/ex", params,
+            query("/ex", params, this_request_num,
                 function(response, status) {
                     console.log("D2 TRANSLATION RESULTS: " + JSON.stringify(response.result));
                     if (response.resultNum > 0) {
                         if (response.result[0].trq > 10) {
                             var tr = response.result[0];
                             english_word.html(tr.tt);
+                            english_word.addClass("success");
                         }
+                        else {
+                          english_word.addClass("danger");
+                        }
+                    }
+                    else {
+                      english_word.addClass("danger");
                     }
                 });
         }
         
         
         function fetch() {
-            lang_name_eng.html("");
-            query("/lv", {sort: "random", limit: 1},
-            function(lv_results, status) {
-                var lv = lv_results.result[0];
-                lang_code = lv_results.result[0].lc;
-                console.log(JSON.stringify(lv));
+          reset_fields();
+          query("/lv", {sort: "random", limit: 1}, ++request_num,
+          function(lv_results, status, this_request_num) {
+              var lv = lv_results.result[0];
+              lang_code = lv_results.result[0].lc;
+              console.log(JSON.stringify(lv));
 
-                query("/ex", { lv: lv.lv, limit: 1, sort: "random", include:"uid" },
-                function(lexeme_results, status) {
-                    var ex = lexeme_results.result[0];
-                    console.log(JSON.stringify(lexeme_results));
+              query("/ex", { lv: lv.lv, limit: 1, sort: "random", include:"uid" }, this_request_num,
+              function(lexeme_results, status, this_request_num) {
+                  var ex = lexeme_results.result[0];
+                  console.log(JSON.stringify(lexeme_results));
 
-                    english_word.html("");
-                    results.html(ex.tt);
-                    lang.html(lv.tt + " (" + lv.uid + ")");
+                  english_word.html("");
+                  results.html(ex.tt);
+                  results.addClass("success");
+                  langvar_name = lv.tt;
+                  lang.html(langvar_name + " (" + lv.uid + ")");
+                  lang.addClass("success");
+                  var params = { "trtt": langvar_name, "include": ["trq", "uid"], "lv": LV_ENG,
+                                  "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
+                  console.log("PARAMS: " + JSON.stringify(params));
 
-                    var params = { "trtt": lv.tt, "include": ["trq", "uid"], "lv": LV_ENG,
-                                    "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
-                    console.log("PARAMS: " + JSON.stringify(params));
-
-                    query("/ex", params, get_eng_lang_name);
-                    set_translation(ex.tt, lv.lv);
-                });
-            });
+                  query("/ex", params, this_request_num, get_eng_lang_name);
+                  set_translation(ex.tt, lv.lv, this_request_num);
+              });
+          });
         }
 
 
-
-        function get_eng_lang_name(eng_name_results, status) {
+        function get_eng_lang_name(eng_name_results, status, this_request_num) {
             console.log("NAME TRANS: " + JSON.stringify(eng_name_results));
             var eng_name;
 
             if (eng_name_results.resultNum > 0) {
                 eng_name = eng_name_results.result[0].tt;
+                lang_name_eng.addClass("success");
                 console.log("ENG LV NAME FOUND: " + JSON.stringify(eng_name_results));
             }
             else {
-                // TODO: get source LV name to translate into art-290 (art-001 ?)
                 console.log("ENG NAME NOT FOUND: " + JSON.stringify(eng_name_results));
                 var params = { "trtt":lang_code, "trlv": LV_ISO_639_3, "include": "trq", 
                                 "lv": LV_ISO_PRINT_NAME, "sort":"trq desc", "limit":1 };
                 console.log("GET ISO NAME: " + JSON.stringify(params));
-                query("/ex", params, get_iso_print_name);
+                query("/ex", params, this_request_num, get_iso_print_name);
             }
 
             lang_name_eng.html(eng_name);
         }
 
 
-        function get_iso_print_name(iso_print_name, status) {
+        function get_iso_print_name(iso_print_name, status, this_request_num) {
             console.log("ISO NAME: " + iso_print_name.result[0].tt);
-            lang_name_eng.html("variety of " + iso_print_name.result[0].tt);
+            if (iso_print_name.result[0].tt == langvar_name) {
+              lang_name_eng.html(iso_print_name.result[0].tt);
+              lang_name_eng.addClass("success");
+            }
+            else {
+              lang_name_eng.html("variety of " + iso_print_name.result[0].tt);
+              lang_name_eng.addClass("success");
+            }
+            
+        }
+
+
+        function reset_fields() {
+          results.removeClass("success");
+          lang.removeClass("success");
+          lang_name_eng.removeClass("success");
+          english_word.removeClass("success");
+          english_word.removeClass("danger");
+          results.html("");
+          lang.html("");
+          lang_name_eng.html("");
+          english_word.html("");
         }
 
 
@@ -151,12 +188,12 @@
               <div class="container">
 
                 <div class="row">
-                  <div class="col-sm-2"></div>
+                  <div class="col-sm-1"></div>
 
-                  <div class="col-sm-8 center-block">
+                  <div class="col-sm-10 center-block">
 
                     <div class="jumbotron">
-                      <h2>Random PanLex Expression</h2>
+                      <h3>Random PanLex Expression</h3>
                       <p class="small">
                         This is my unofficial PanLex random word selector.
                         It chooses an expression at random from the PanLex database in a randomly chosen language.
@@ -169,10 +206,22 @@
                     </div>
 
                     <table class="table">
-                      <tr id="exprow"><td class="info"><nobr>Random expression</nobr></td><td id="results" width="100%"></td></tr>
-                      <tr id="transrow"><td class="info"><nobr>English translation</nobr></td><td id="english_word"</td></tr>
-                      <tr id="langrow"><td class="info"><nobr>Language variety name</nobr></td><td id="lang"></td></tr>
-                      <tr id="langengrow"><td class="info"><nobr>English name</nobr></td><td id="lang_name_eng"></td></tr>
+                      <tr id="exprow">
+                        <td class="info"><nobr>Random expression</nobr></td>
+                        <td id="results" width="100%"></td>
+                      </tr>
+                      <tr id="transrow">
+                        <td class="info"><nobr>English translation</nobr></td>
+                        <td id="english_word"</td>
+                      </tr>
+                      <tr id="langrow">
+                        <td class="info"><nobr>Language variety name</nobr></td>
+                        <td id="lang"></td>
+                      </tr>
+                      <tr id="langengrow">
+                        <td class="info"><nobr>English name</nobr></td>
+                        <td id="lang_name_eng"></td>
+                      </tr>
                     </table>
 
 
@@ -180,7 +229,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-2 center-block"></div>
+                  <div class="col-sm-1 center-block"></div>
 
                 </div>
               </div>
