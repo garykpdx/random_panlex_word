@@ -136,14 +136,22 @@
 
 
         function get_iso_print_name(iso_print_name, status, this_request_num) {
-            console.log("ISO NAME: " + iso_print_name.result[0].tt);
-            if (iso_print_name.result[0].tt == langvar_name) {
-              lang_name_eng.html(iso_print_name.result[0].tt);
-              lang_name_eng.addClass("success");
+            if (status != "success") {
+                console.log("GET ISO PRINT NAME CALL FAILED WITH STATUS: " + status);
+            }
+            else if (iso_print_name.resultNum == 0) {
+                console.log("GET ISO PRINT NAME: no results");
             }
             else {
-              lang_name_eng.html("variety of " + iso_print_name.result[0].tt);
-              lang_name_eng.addClass("success");
+                console.log("ISO PRINT NAME: " + iso_print_name.result[0].tt);
+                if (iso_print_name.result[0].tt == langvar_name) {
+                  lang_name_eng.html(iso_print_name.result[0].tt);
+                  lang_name_eng.addClass("success");
+                }
+                else {
+                  lang_name_eng.html("variety of " + iso_print_name.result[0].tt);
+                  lang_name_eng.addClass("success");
+                }
             }
             
         }
