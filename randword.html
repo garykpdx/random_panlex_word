@@ -24,6 +24,7 @@
         var LV_ISO_PRINT_NAME = 1626;
         var langvar_name = '';
         var english_word, results, lang_variety, lang_code, lang_name_eng;
+        var current_lv_name = '';
 
         var request_num = 0;
 
@@ -100,7 +101,7 @@
                   english_word.html("");
                   results.html(ex.tt);
                   results.addClass("success");
-                  langvar_name = lv.tt;
+                  langvar_name = lv_results.result[0].tt;
                   lang.html(langvar_name + " (" + lv.uid + ")");
                   lang.addClass("success");
                   var params = { "trtt": langvar_name, "include": ["trq", "uid"], "lv": LV_ENG,
