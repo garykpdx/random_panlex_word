@@ -7,11 +7,11 @@
     "@gray-light": "lighten(@gray-base, 46.7%)",
     "@gray-lighter": "lighten(@gray-base, 93.5%)",
     "@brand-primary": "darken(#428bca, 6.5%)",
-    "@brand-success": "#5cb85c",
-    "@brand-info": "#6666ff",
+    "@brand-success": "#FFF5DD",
+    "@brand-info": "#F2D285",
     "@brand-warning": "#f0ad4e",
     "@brand-danger": "#d9534f",
-    "@body-bg": "#fff",
+    "@body-bg": "#CCDBFF",
     "@text-color": "@gray-dark",
     "@link-color": "@brand-primary",
     "@link-hover-color": "darken(@link-color, 15%)",
@@ -67,7 +67,7 @@
     "@btn-default-bg": "#fff",
     "@btn-default-border": "#ccc",
     "@btn-primary-color": "#fff",
-    "@btn-primary-bg": "@brand-primary",
+    "@btn-primary-bg": "#4B6091",
     "@btn-primary-border": "darken(@btn-primary-bg, 5%)",
     "@btn-success-color": "#fff",
     "@btn-success-bg": "@brand-success",
@@ -212,8 +212,8 @@
     "@pager-active-color": "@pagination-active-color",
     "@pager-disabled-color": "@pagination-disabled-color",
     "@jumbotron-padding": "20px",
-    "@jumbotron-color": "#800000",
-    "@jumbotron-bg": "@gray-lighter",
+    "@jumbotron-color": "#FAFBFF",
+    "@jumbotron-bg": "#FAFBFF",
     "@jumbotron-heading-color": "inherit",
     "@jumbotron-font-size": "ceil((@font-size-base * 1.5))",
     "@jumbotron-heading-font-size": "ceil((@font-size-base * 4.5))",
@@ -391,19 +391,14 @@
     "responsive-utilities.less",
     "glyphicons.less",
     "button-groups.less",
-    "breadcrumbs.less",
     "labels.less",
-    "badges.less",
     "jumbotron.less",
     "alerts.less",
     "media.less",
     "list-group.less",
     "panels.less",
     "responsive-embed.less",
-    "wells.less",
-    "component-animations.less",
-    "dropdowns.less",
-    "tooltip.less"
+    "dropdowns.less"
   ],
   "js": [
     "tooltip.js",
@@ -412,5 +407,5 @@
     "scrollspy.js",
     "transition.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=9cd3453fe8dfe9af922c53015771c74d"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=8eb73699fe6bab60dd88f9bc84b2ff1d"
 }

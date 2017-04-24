@@ -1020,7 +1020,7 @@ body {
   font-size: 14px;
   line-height: 1.42857143;
   color: #333333;
-  background-color: #ffffff;
+  background-color: #CCDBFF;
 }
 input,
 button,
@@ -1310,7 +1310,7 @@ a.bg-primary:focus {
   background-color: #286090;
 }
 .bg-success {
-  background-color: #dff0d8;
+  background-color: #FFF5DD;
 }
 a.bg-success:hover,
 a.bg-success:focus {
@@ -1339,8 +1339,10 @@ a.bg-danger:focus {
 }
 .page-header {
   padding-bottom: 9px;
+  padding-left:9px;
   margin: 40px 0 20px;
-  border-bottom: 1px solid #eeeeee;
+  border: 2px solid #4B6091;
+  border-radius: 6px;
 }
 ul,
 ol {
@@ -2297,7 +2299,7 @@ table th[class*="col-"] {
 .table > thead > tr.success > th,
 .table > tbody > tr.success > th,
 .table > tfoot > tr.success > th {
-  background-color: #dff0d8;
+  background-color: #FFF5DD;
 }
 .table-hover > tbody > tr > td.success:hover,
 .table-hover > tbody > tr > th.success:hover,
@@ -2318,7 +2320,7 @@ table th[class*="col-"] {
 .table > thead > tr.info > th,
 .table > tbody > tr.info > th,
 .table > tfoot > tr.info > th {
-  background-color: #ccccff;
+  background-color: #F2D285;
 }
 .table-hover > tbody > tr > td.info:hover,
 .table-hover > tbody > tr > th.info:hover,
@@ -3045,7 +3047,7 @@ fieldset[disabled] .btn-default.focus {
 }
 .btn-primary {
   color: #ffffff;
-  background-color: #337ab7;
+  background-color: #4B6091;
   border-color: #2e6da4;
 }
 .btn-primary:focus,
@@ -3056,7 +3058,7 @@ fieldset[disabled] .btn-default.focus {
 }
 .btn-primary:hover {
   color: #ffffff;
-  background-color: #286090;
+  background-color: #7191DB;
   border-color: #204d74;
 }
 .btn-primary:active,
@@ -3878,8 +3880,8 @@ a.badge:focus {
   padding-top: 20px;
   padding-bottom: 20px;
   margin-bottom: 20px;
-  color: #800000;
-  background-color: #eeeeee;
+  color: #333;
+  background-color: #FAFBFF;
 }
 .jumbotron h1,
 .jumbotron .h1 {
@@ -4248,7 +4250,7 @@ button.list-group-item-danger.active:focus {
 }
 .panel {
   margin-bottom: 20px;
-  background-color: #ffffff;
+  background-color: #CCDBFF;
   border: 1px solid transparent;
   border-radius: 4px;
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
