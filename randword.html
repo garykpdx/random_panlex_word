@@ -98,6 +98,7 @@
         function fetch() {
           reset_fields();
           query("/lv", {sort: "random", limit: 1}, ++request_num,
+          // query("/lv", {"lv":187}, ++request_num,
           function(lv_results, status, this_request_num) {
               var lv = lv_results.result[0];
               lang_code = lv_results.result[0].lc;
@@ -114,7 +115,7 @@
                   langvar_name = lv_results.result[0].tt;
                   lang.html(langvar_name + " (" + lv.uid + ")");
                   lang.addClass("success");
-                  var params = { "trtt": langvar_name, "include": ["trq", "uid"], "lv": LV_ENG,
+                  var params = { "trtt": langvar_name, "include": ["trq", "uid", "trlv"], "lv": LV_ENG,
                                   "trlv":lv_results.result[0].lv, "sort":"trq desc", "limit":1 };
                   console.log("PARAMS: " + JSON.stringify(params));
 
@@ -130,7 +131,7 @@
             var eng_name;
 
             if (eng_name_results.resultNum > 0) {
-            	if (eng_name_results.result[0].lv == 187) {
+            	if (eng_name_results.result[0].trlv == 187) {
                 	eng_name = 'English';
                 } else {
                 	eng_name = eng_name_results.result[0].tt;
