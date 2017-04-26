@@ -130,7 +130,11 @@
             var eng_name;
 
             if (eng_name_results.resultNum > 0) {
-                eng_name = eng_name_results.result[0].tt;
+            	if (eng_name_results.result[0].lv == 187) {
+                	eng_name = 'English';
+                } else {
+                	eng_name = eng_name_results.result[0].tt;
+                }
                 lang_name_eng.addClass("success");
                 console.log("ENG LV NAME FOUND: " + JSON.stringify(eng_name_results));
             }
